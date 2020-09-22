@@ -1,0 +1,16 @@
+header nav{
+    padding: 12px 50px 12px 12px;
+
+    display: flex;
+    justify-content: flex-end;
+    background-color: rgb(31, 23, 23);
+}
+header nav a {
+    padding: 10px;
+    text-decoration: none;
+    color: antiquewhite;
+}
+header nav a:hover {
+    cursor: pointer;
+    color: burlywood;
+}
