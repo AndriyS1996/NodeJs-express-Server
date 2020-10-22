@@ -10,3 +10,42 @@
     <li>name: {{{name}}}</li>
     <li>email: {{{email}}}</li>
 </ul>
+
+<div class="create-chat-btn-wrap">
+   <div><button id="create_private_chat">create private chat</button></div>
+</div>
+
+<div class="create-private-chat-wrap">
+    <div id="create-private-chat">
+        <div class="create-private-chat-form-wrap">
+            <span class="close">&times;</span>
+            <form name="createPrivatChat">
+                <label for="name">Chat Name:</label>
+                <input type="text" name="name" id="chat_name"><br>
+                <label for="addPerson">Add Person:</label>
+                <input type="search" name="addPerson" id="add_person" placeholder="search person">
+                <input type="submit" value="create chat" id="submit_create_chat">
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="chat-wrapper">
+    <div class="chat-list-wrapper">
+        <ul id="chat_list">  
+        </ul>
+    </div>
+    <div class="chat-text-wrapper">
+        <div id="chat_text_history"></div>
+        <div class="chat-send-msg-block">
+            <div class="chat-write-msg-input-wrap">
+                <textarea name="" id="chat_write_msg" placeholder="write a message..."></textarea>
+            </div>
+            <div class="chat-send-msg-button-wrap">
+                <button id="chat_send_msg_button">send</button>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="/socket.io/socket.io.js"></script>
+<script src="chat.js"></script> 

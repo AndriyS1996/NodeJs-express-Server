@@ -7,7 +7,7 @@ router.get('/logout', (req, res) => {
         httpOnly: true,
     });
     res.status(205);
-    res.redirect('back');
+    res.redirect('/');
 });
 
 module.exports = router;
