@@ -18,7 +18,8 @@ router.post('/register', async (req, res) => {
 
     try {
         const emailexist = await User.findOne({email: req.body.email});
-        if (emailexist) return res.status(400).send('Email already exist');
+        const nameexist = await User.findOne({email: req.body.name});
+        if ((emailexist) || (nameexist)) return res.status(400).send('Name or Email already exist');
     } catch (error) {
         res.status(500).send(error);
         res.end();
@@ -34,7 +35,8 @@ router.post('/register', async (req, res) => {
     const user = new User({
         name: req.body.name,
         email: req.body.email,
-        password: hashedPassword
+        password: hashedPassword,
+        privateChats: []
     });
 
     // Save user in db

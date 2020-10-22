@@ -9,6 +9,9 @@ const mainRoute = require('./routes/main');
 const logoutRoute = require('./routes/logout');
 const handlebars = require('express-handlebars');
 const cookieParser = require('cookie-parser');
+const jwt = require('jsonwebtoken');
+const User = require('./model/User');
+const PrivateChat = require('./model/PrivateChat');
 
 
 const app = express();
@@ -52,9 +55,56 @@ app.use('/', profileRoute);
 
 const PORT = process.env.PORT || 3000;
 
-let server = app.listen(PORT, () => console.log(`Server is started on port: ${PORT}`));
+const server = require('http').createServer(app);
+const io = require('socket.io')(server, {origins: 'localhost:3000'});
 
-module.exports = server;
+let nms = io.of('/');
+
+nms.use((socket, next) => {
+    let JWT;
+    if (!(JWT = socket.handshake.headers.cookie.split('; ').find((elem) => elem.indexOf('JWT=') === 0))) {
+        socket.disconnect(true);
+        return
+    }
+    JWT = JWT.substring(4);
+    try {
+        const verified = jwt.verify(JWT, process.env.TOKEN_SECRET);
+        socket.user = verified;
+        next();
+    } catch (error) {
+        socket.disconnect(true);
+    }
+})
+nms.on('connection', async (socket) => {
+    console.log(Object.keys(nms.sockets).length);
+    try {
+        let user = await User.findOne({name: socket.user.name}).exec();
+        user.privateChats.forEach((chatName) => {
+            socket.join(chatName);
+            console.log(chatName);
+        })
+    } catch (error) {
+        console.log(error);
+    }
+    socket.on('create chat', (name) => {
+        let connectedSocket = Object.values(nms.sockets).find((socket) => socket.user.name === name);
+        if (connectedSocket) {
+            connectedSocket.join(socket.user.name + '&' + connectedSocket.user.name);
+            socket.join(socket.user.name + '&' + connectedSocket.user.name);
+        }
+    })
+    socket.on('chat message', async (data) => {
+        let privateChat = await PrivateChat.findOne({$or:[{admin: socket.user.name, guest: data.receiver}, {admin: data.receiver, guest: socket.user.name}]}).exec();
+        await PrivateChat.updateOne({admin: privateChat.admin, guest: privateChat.guest}, {$push: {history: {msg: data.msg, creator: socket.user.name}}}).exec();
+        let room = privateChat.admin + '&' + privateChat.guest;
+        io.to(room).emit('chat message', JSON.stringify({post: {msg: data.msg, creator: socket.user.name}}))
+    });
+})
+
+
+server.listen(PORT, () => console.log(`Server is started on port: ${PORT}`));
+
+
 
 
 

@@ -20,6 +20,10 @@ const userSchema = new mongoose.Schema({
         min: 6,
         max: 200
     },
+    privateChats: {
+        type: Array,
+        required: true
+    },
     date: {
         type: Date,
         default: Date.now
